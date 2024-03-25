@@ -54,7 +54,7 @@ if __name__ == '__main__':
     for key in keys_to_delete:
         del itemset_count_dict[key]
     frequent_itemset_list.append(itemset_count_dict)  # frequent_item_list[0] -> size 1 itemset
-    # print(frequent_itemset_list[0])
+    print(frequent_itemset_list[0])
     # K = 1 done (made L_1)
 
     k = 1  # variable for iteration
@@ -102,9 +102,8 @@ if __name__ == '__main__':
         itemset_count_dict = dict()  # itemset_count_dict = {}
         for transaction in transactions:  # loop the DB to get frequent 1-itemset
             transaction_set = set([int(item) for item in transaction])  # transform the string list into the set of integers
-            print(transaction_set)
             for pruned_itemset in pruned_candidate_itemsets:
-                if pruned_itemset.issuperset(transaction_set):  # if the pruned_itemset is the subset of transaction (frequency += 1)
+                if set(pruned_itemset).issubset(transaction_set):  # if the pruned_itemset is the subset of transaction (frequency += 1)
                     if pruned_itemset not in itemset_count_dict:  # if the itemset is not found as a key
                         itemset_count_dict[pruned_itemset] = 1  # add the key and set the count to 1
                     else:  # if the itemset is already in the dictionary
@@ -120,17 +119,15 @@ if __name__ == '__main__':
         for key in keys_to_delete:
             del itemset_count_dict[key]
 
-        break # 에러 확인을 위해 k=1 일때 한번만 진행하고 빠져나가기
-        # termination condition. (Lk == NULL)
+        # termination condition. (L_k == NULL)
         if len(itemset_count_dict) == 0:
             break  # Finish the apriori algorithm
 
         frequent_itemset_list.append(itemset_count_dict)  # frequent_item_list[k] -> size k+1 itemset
-
-
-
-
-
+        k += 1  # same as i++ in for-loop
+    # for test
+    for frequent_itemset in frequent_itemset_list:
+        print(frequent_itemset)
 
 
 
