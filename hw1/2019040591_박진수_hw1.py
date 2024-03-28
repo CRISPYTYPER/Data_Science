@@ -9,7 +9,7 @@ def get_frequent_itemset_list(transactions, minimum_support_str) :
         transactions (list): A list of transactions(DB), where each transaction is represented as a list of items.
         Be aware that each element in a transaction is string (ex. '7')
 
-        Returns:
+        Return:
         list: A list of frequent itemsets discovered from the transactional data.
         ex) [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
     """
@@ -121,13 +121,34 @@ def get_frequent_itemset_list(transactions, minimum_support_str) :
     #     print(frequent_itemset)
     return frequent_itemset_list  # ex) [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
 
+def divide_into_two_subsets(itemset_tuple):
+    """
+    Divide a tuple into all possible two disjoint subsets.
+
+    Parameters:
+        itemset_tuple (tuple): A tuple representing an itemset.
+    Return:
+        list: A list of tuples, each consists of two disjoint subsets of the input itemset.
+    """
+
+    all_subsets = set(itemset_tuple)
+    result = []
+
+    # i from 1 to len(itemset_tuple)-1`
+    for i in range(1, len(itemset_tuple)):
+        # Generate all combinations(tuple) of length i (from 1 to len(itemset_tuple)-1)
+        for subset in combinations(itemset_tuple, i):
+            # Add the partition to the result list
+            result.append((set(subset), all_subsets - set(subset)))
+    return result
+
 def get_association_rules_list(frequent_item_list):
     for i in range(1, len(frequent_item_list)): # start from 1 to start from length-2 itemsets
         itemset_count_dict = frequent_item_list[i]  # itemset_count_dict == {(3, 8, 16): 120, (1, 8, 16): 58}
         # iterate over the dictionary
         for itemset in itemset_count_dict:  # itemset is a key of the dict
             # now, divide each itemset into two disjoint subsets
-
+            # TODO: divide_into_two_subsets의 결과를 이용해서 association rule 계산
 
 
 
