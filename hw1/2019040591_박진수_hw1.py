@@ -1,4 +1,5 @@
 import sys
+from itertools import combinations
 
 def get_frequent_itemset_list(transactions, minimum_support_str) :
     """
@@ -120,6 +121,16 @@ def get_frequent_itemset_list(transactions, minimum_support_str) :
     #     print(frequent_itemset)
     return frequent_itemset_list  # ex) [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
 
+def get_association_rules_list(frequent_item_list):
+    for i in range(1, len(frequent_item_list)): # start from 1 to start from length-2 itemsets
+        itemset_count_dict = frequent_item_list[i]  # itemset_count_dict == {(3, 8, 16): 120, (1, 8, 16): 58}
+        # iterate over the dictionary
+        for itemset in itemset_count_dict:  # itemset is a key of the dict
+            # now, divide each itemset into two disjoint subsets
+
+
+
+
 if __name__ == '__main__':
     # Argument num checking
     if len(sys.argv) != 4:
@@ -147,9 +158,7 @@ if __name__ == '__main__':
     frequent_itemset_list = get_frequent_itemset_list(transactions, minimum_support_str)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
     print(frequent_itemset_list)
     # TODO : <step 2: for each frequent itemset, find association rules>
-
-
-
+    association_rules_list = get_association_rules_list(frequent_itemset_list)
 
 
 
