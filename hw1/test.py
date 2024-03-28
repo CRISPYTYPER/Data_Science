@@ -33,6 +33,6 @@ if __name__ == '__main__':
     cnt = 0
     for transaction in transactions:
         int_transaction_set = set([int(item) for item in transaction])
-        if ({6, 18}).issubset(int_transaction_set):
+        if ({1, 3, 16}).issubset(int_transaction_set):
             cnt += 1
     print(cnt)

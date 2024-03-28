@@ -1,6 +1,6 @@
 import sys
 
-def get_frequent_itemset_list(transactions) :
+def get_frequent_itemset_list(transactions, minimum_support_str) :
     """
         Generates frequent itemsets from transactional data using the Apriori algorithm.
 
@@ -144,9 +144,10 @@ if __name__ == '__main__':
 
     # 'transactions' variable is now such like [['7', '14'], ['9'], ['18', '2', '4', '5', '1']]
     # get frequent itemset list using apriori algorithm. Index 0 refers to L_1
-    frequent_itemset_list = get_frequent_itemset_list(transactions)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
+    frequent_itemset_list = get_frequent_itemset_list(transactions, minimum_support_str)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
     print(frequent_itemset_list)
     # TODO : <step 2: for each frequent itemset, find association rules>
+
 
 
 
