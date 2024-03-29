@@ -213,8 +213,8 @@ if __name__ == '__main__':
     # Open the file to write
     with open(output_file_name, 'w') as file:
         for row in association_rules_list:  # iterate over rows
-            file.write("{" + ",".join(str(item) for item in row[0]) + "}\t")  # item_set
-            file.write("{" + ",".join(str(item) for item in row[1]) + "}\t")  # associative_item_set
+            file.write("{" + ", ".join(str(item) for item in row[0]) + "}\t")  # item_set
+            file.write("{" + ", ".join(str(item) for item in row[1]) + "}\t")  # associative_item_set
             file.write("%.2f\t" %row[2])  # support
             file.write("%.2f\n" %row[3])  # confidence
 
