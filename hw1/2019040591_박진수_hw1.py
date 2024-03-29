@@ -63,9 +63,6 @@ def get_frequent_itemset_list(transactions, minimum_support) :
                 if len(union_set_list) == k + 1:
                     candidate_itemsets.add(tuple(union_set_list))
 
-        # 한국말로 써놓자면, L_k-1을 이용해서 합집합을 계산하여 C_k의 후보군을 구해놓았지만,
-        # apriori 알고리즘의 핵심인, L_k-1에서 frequent하지 않은 것이 확인되었다면 이후에도 그것의 superset은 고려할 필요가 없다는 부분을 구현해야함.
-        # keys_to_delete 라는 리스트에 이전 step에서 구한 frequent 하지 않은 itemset를 저장해 두었음
         pruned_candidate_itemsets = candidate_itemsets.copy()
 
         for itemset in candidate_itemsets:  # the item is sorted in ascending order. (ex. (6, 18))
