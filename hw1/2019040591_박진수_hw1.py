@@ -77,8 +77,8 @@ def get_frequent_itemset_list(transactions, minimum_support) :
 
         # print(len(pruned_candidate_itemsets))
 
-        # 이제 pruned_condidate_itemsets에 pruned 완료된 candidates가 담겨있음.
-        # 이제 DB-scan 작업 후, frequent하지 않은 itemset은 없애기
+        # Now, pruned_condidate_itemsets contain pruned candidates.
+        # Also, need to remove unfrequent itemsets after DB-scan.
 
         # DB scan (DB: transactions)
         # count the support in DB
@@ -137,13 +137,23 @@ def divide_into_two_subsets(itemset_tuple):
     return result
 
 def get_association_rules_list(frequent_itemset_list, transactions_length):
+    """
+        Return a list of all association rules
+
+        Parameters:
+            frequent_itemset_list (list): A list of frequent itemsets discovered from the transactional data.
+                ex) [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
+            transactions_length (int): A number of transactions of the input file.
+        Return:
+            list: A list of all association rules. Each row is like this -> [(2,), (4,), 8.6, 32.58]
+        """
     result_list = []
     for i in range(1, len(frequent_itemset_list)): # start from 1 to start from length-2 itemsets
         itemset_count_dict = frequent_itemset_list[i]  # itemset_count_dict == {(3, 8, 16): 120, (1, 8, 16): 58}
         # iterate over the dictionary
         for itemset, support in itemset_count_dict.items():  # itemset is a key of the dict
             # now, divide each itemset into two disjoint subsets
-            # TODO: divide_inzto_two_subsets의 결과를 이용해서 association rule 계산
+            # Derive association rule using the result of divide_into_two_subsets
             divided_sets_list = divide_into_two_subsets(itemset)
             for pair in divided_sets_list:  # pair == ({1}, {5})
                 sub_itemset = pair[0]  # divided first sub-itemset. {1} from {1, 5}
@@ -156,14 +166,15 @@ def get_association_rules_list(frequent_itemset_list, transactions_length):
                 # print(sub_itemset_support)
                 # print(sub_associative_itemset_support)
 
-                # 어차피 이둘의 합집합은 쪼개기 전 원래 itemset과 같으니, 해당 associative support는 원본의 support로 대체
+                # All pairs share same support, since their unions are the same. (Originated from the same set)
+                # make a list that will be an element of the result_list.
                 each_row_list = []
                 each_row_list.append(sub_itemset_tuple)
                 each_row_list.append(sub_associative_itemset_tuple)
                 each_row_list.append(round((support / transactions_length) * 100, 2)) # support
                 each_row_list.append(round((support / sub_itemset_support) * 100, 2))  #confidence
                 result_list.append(each_row_list)
-    print(result_list)
+    # print(result_list)
     return result_list
 
 
@@ -193,22 +204,22 @@ if __name__ == '__main__':
     num_of_transactions = len(transactions)
 
     # minimum support (counts) -> 500 * 10% = 50.0
-    minimum_support = float(minimum_support_str) / 100 * num_of_transactions
+    minimum_support = float(minimum_support_str) / 100 * num_of_transactions   # minimum support input can be a float type
 
     # 'transactions' variable is now such like [['7', '14'], ['9'], ['18', '2', '4', '5', '1']]
     # get frequent itemset list using apriori algorithm. Index 0 refers to L_1
     frequent_itemset_list = get_frequent_itemset_list(transactions, minimum_support)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
-    print(frequent_itemset_list)
-    # TODO : <step 2: for each frequent itemset, find association rules>
+    # print(frequent_itemset_list)
+    # find association rules for each frequent itemset, and put it into the list.
     association_rules_list = get_association_rules_list(frequent_itemset_list, num_of_transactions)
 
     # Open the file to write
     with open(output_file_name, 'w') as file:
-        for row in association_rules_list:
-            file.write("{" + ",".join(str(item) for item in row[0]) + "}\t")
-            file.write("{" + ",".join(str(item) for item in row[1]) + "}\t")
-            file.write("%.2f\t" %row[2])
-            file.write("%.2f\n" %row[3])
+        for row in association_rules_list:  # iterate over rows
+            file.write("{" + ",".join(str(item) for item in row[0]) + "}\t")  # item_set
+            file.write("{" + ",".join(str(item) for item in row[1]) + "}\t")  # associative_item_set
+            file.write("%.2f\t" %row[2])  # support
+            file.write("%.2f\n" %row[3])  # confidence
 
 
 
