@@ -1,24 +1,18 @@
 import sys
 from itertools import combinations
 
-def get_frequent_itemset_list(transactions, minimum_support_str) :
+def get_frequent_itemset_list(transactions, minimum_support) :
     """
         Generates frequent itemsets from transactional data using the Apriori algorithm.
 
         Parameters:
         transactions (list): A list of transactions(DB), where each transaction is represented as a list of items.
         Be aware that each element in a transaction is string (ex. '7')
-
+        minimum_support (float): Minimum support with percentage (ex. 50.0)
         Return:
         list: A list of frequent itemsets discovered from the transactional data.
         ex) [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
     """
-
-    # number of transactions (used to calculate minimum support)
-    num_of_transactions = len(transactions)
-
-    # minimum support (counts) -> 500 * 10% = 50.0
-    minimum_support = int(minimum_support_str) / 100 * num_of_transactions
 
     frequent_itemset_list = []  # list of dictionaries, each element in index i has itemset of length (i+1)
 
@@ -142,13 +136,35 @@ def divide_into_two_subsets(itemset_tuple):
             result.append((set(subset), all_subsets - set(subset)))
     return result
 
-def get_association_rules_list(frequent_item_list):
-    for i in range(1, len(frequent_item_list)): # start from 1 to start from length-2 itemsets
-        itemset_count_dict = frequent_item_list[i]  # itemset_count_dict == {(3, 8, 16): 120, (1, 8, 16): 58}
+def get_association_rules_list(frequent_itemset_list, transactions_length):
+    result_list = []
+    for i in range(1, len(frequent_itemset_list)): # start from 1 to start from length-2 itemsets
+        itemset_count_dict = frequent_itemset_list[i]  # itemset_count_dict == {(3, 8, 16): 120, (1, 8, 16): 58}
         # iterate over the dictionary
-        for itemset in itemset_count_dict:  # itemset is a key of the dict
+        for itemset, support in itemset_count_dict.items():  # itemset is a key of the dict
             # now, divide each itemset into two disjoint subsets
-            # TODO: divide_into_two_subsets의 결과를 이용해서 association rule 계산
+            # TODO: divide_inzto_two_subsets의 결과를 이용해서 association rule 계산
+            divided_sets_list = divide_into_two_subsets(itemset)
+            for pair in divided_sets_list:  # pair == ({1}, {5})
+                sub_itemset = pair[0]  # divided first sub-itemset. {1} from {1, 5}
+                sub_associative_itemset = pair[1]  # divided second sub_itemset {5} from {1, 5}
+                sub_itemset_tuple = tuple(sorted(sub_itemset))  # transform into ascendent tuple
+                sub_associative_itemset_tuple = tuple(sorted(sub_associative_itemset))  # transform into ascendent tuple
+
+                sub_itemset_support = frequent_itemset_list[len(sub_itemset)-1][sub_itemset_tuple]
+                sub_associative_itemset_support = frequent_itemset_list[len(sub_associative_itemset)-1][sub_associative_itemset_tuple]
+                # print(sub_itemset_support)
+                # print(sub_associative_itemset_support)
+
+                # 어차피 이둘의 합집합은 쪼개기 전 원래 itemset과 같으니, 해당 associative support는 원본의 support로 대체
+                each_row_list = []
+                each_row_list.append(sub_itemset_tuple)
+                each_row_list.append(sub_associative_itemset_tuple)
+                each_row_list.append(round((support / transactions_length) * 100, 2)) # support
+                each_row_list.append(round((support / sub_itemset_support) * 100, 2))  #confidence
+                result_list.append(each_row_list)
+    print(result_list)
+    return result_list
 
 
 
@@ -173,14 +189,26 @@ if __name__ == '__main__':
             # Add each transaction into the list "transactions"
             transactions.append(item_ids)
 
+    # number of transactions (used to calculate minimum support)
+    num_of_transactions = len(transactions)
+
+    # minimum support (counts) -> 500 * 10% = 50.0
+    minimum_support = float(minimum_support_str) / 100 * num_of_transactions
 
     # 'transactions' variable is now such like [['7', '14'], ['9'], ['18', '2', '4', '5', '1']]
     # get frequent itemset list using apriori algorithm. Index 0 refers to L_1
-    frequent_itemset_list = get_frequent_itemset_list(transactions, minimum_support_str)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
+    frequent_itemset_list = get_frequent_itemset_list(transactions, minimum_support)  # frequent_itemset_list == [{(16,): 212, (3,): 150, (8,): 226}, {(8, 16): 151}]
     print(frequent_itemset_list)
     # TODO : <step 2: for each frequent itemset, find association rules>
-    association_rules_list = get_association_rules_list(frequent_itemset_list)
+    association_rules_list = get_association_rules_list(frequent_itemset_list, num_of_transactions)
 
+    # Open the file to write
+    with open(output_file_name, 'w') as file:
+        for row in association_rules_list:
+            file.write("{" + ",".join(str(item) for item in row[0]) + "}\t")
+            file.write("{" + ",".join(str(item) for item in row[1]) + "}\t")
+            file.write("%.2f\t" %row[2])
+            file.write("%.2f\n" %row[3])
 
 
 
